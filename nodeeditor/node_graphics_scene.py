@@ -54,9 +54,9 @@ class QDMGraphicsScene(QGraphicsScene):
         self._color_state = QColor("#ccc")
 
         self._pen_light = QPen(self._color_light)
-        self._pen_light.setWidth(0.3)
+        self._pen_light.setWidthF(0.3)
         self._pen_dark = QPen(self._color_dark)
-        self._pen_dark.setWidth(0.8)
+        self._pen_dark.setWidthF(0.8)
 
         self._pen_state = QPen(self._color_state)
         self._font_state = QFont("Roboto", 16)
