@@ -3,11 +3,16 @@
 #include <QMainWindow>
 
 class QCloseEvent;
-
+class QMdiArea;
+class QMdiSubWindow;
 class FlowEditorWidget;
 class NodeTypeRegistry;
 class QTreeWidget;
-class QTreeWidgetItem;
+class NodeSettingsDock;
+class QLabel;
+class QAction;
+class QSplitter;
+class QTabWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -27,15 +32,42 @@ private slots:
     void onSave();
     void onSaveAs();
     void onSaveGraph();
+    void onRunGraph();
     void onAbout();
+    void onUndo();
+    void onRedo();
+    void onCut();
+    void onCopy();
+    void onPaste();
+    void onDelete();
+    void onSubWindowActivated(QMdiSubWindow *w);
+    void updateMenus();
+    void updateWindowTitle();
+    void updateSettingsDock();
+    void onSceneCursor(int x, int y);
 
 private:
+    FlowEditorWidget *activeEditor() const;
+    bool maybeSaveEditor(FlowEditorWidget *ed);
+    void createMdiChild(FlowEditorWidget *reuse = nullptr);
     void buildPalette();
-    void updateWindowTitle();
-    bool maybeSave();
     QString definitionsRoot() const;
+    QString executionRunnerPath() const;
+    void readSettings();
+    void writeSettings();
 
-    FlowEditorWidget *m_editor = nullptr;
+    QMdiArea *m_mdi = nullptr;
     NodeTypeRegistry *m_registry = nullptr;
     QTreeWidget *m_palette = nullptr;
+    NodeSettingsDock *m_settingsDock = nullptr;
+    QSplitter *m_mainSplitter = nullptr;
+    QTabWidget *m_sideTabs = nullptr;
+    QLabel *m_scenePosLabel = nullptr;
+
+    QAction *m_actUndo = nullptr;
+    QAction *m_actRedo = nullptr;
+    QAction *m_actCut = nullptr;
+    QAction *m_actCopy = nullptr;
+    QAction *m_actPaste = nullptr;
+    QAction *m_actDelete = nullptr;
 };

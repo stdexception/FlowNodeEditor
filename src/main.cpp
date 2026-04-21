@@ -52,6 +52,7 @@ static void loadWindowIcons(QMainWindow *w)
 
 int main(int argc, char *argv[])
 {
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("FlowNodeEditor"));
     QApplication::setOrganizationName(QStringLiteral("FlowNodeEditor"));

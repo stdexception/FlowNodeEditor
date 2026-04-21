@@ -44,5 +44,5 @@ QDMNodeContentWidget QLineEdit#calc_node_input {
   font-size: 28px;
 }
 QGraphicsView {
-  selection-background-color: #fff;
+  selection-background-color: rgba(40, 218, 237, 0.25);
 }

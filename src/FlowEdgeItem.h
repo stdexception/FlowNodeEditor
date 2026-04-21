@@ -52,6 +52,8 @@ public:
 
 private:
     QPainterPath computeBezier(const QPointF &s, const QPointF &d) const;
+    QPainterPath computeSquare(const QPointF &s, const QPointF &d) const;
+    QPainterPath pathForType(const QPointF &s, const QPointF &d) const;
 
     FlowSocketItem *m_start = nullptr;
     FlowSocketItem *m_end = nullptr;

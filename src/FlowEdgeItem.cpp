@@ -7,8 +7,10 @@
 
 namespace
 {
+constexpr int kEdgeDirect = 1;
 constexpr int kEdgeBezier = 2;
-}
+constexpr int kEdgeSquare = 3;
+} // namespace
 
 FlowEdgeItem::FlowEdgeItem(FlowSocketItem *startSocket, FlowSocketItem *endSocket, qint64 edgeId, int edgeType)
     : m_start(startSocket)
@@ -18,7 +20,7 @@ FlowEdgeItem::FlowEdgeItem(FlowSocketItem *startSocket, FlowSocketItem *endSocke
 {
     setZValue(-1);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
-    setPen(QPen(QColor(QStringLiteral("#7f8ba0")), 1.5));
+    setPen(QPen(QColor(QStringLiteral("#6f8aa0")), 1.35));
 
     if (m_start)
     {
@@ -43,6 +45,34 @@ QPainterPath FlowEdgeItem::computeBezier(const QPointF &s, const QPointF &d) con
     return path;
 }
 
+QPainterPath FlowEdgeItem::computeSquare(const QPointF &s, const QPointF &d) const
+{
+    const qreal midX = s.x() + (d.x() - s.x()) * 0.5;
+    QPainterPath path(s);
+    path.lineTo(midX, s.y());
+    path.lineTo(midX, d.y());
+    path.lineTo(d.x(), d.y());
+    return path;
+}
+
+QPainterPath FlowEdgeItem::pathForType(const QPointF &s, const QPointF &d) const
+{
+    switch (m_edgeType)
+    {
+    case kEdgeDirect:
+    {
+        QPainterPath path(s);
+        path.lineTo(d);
+        return path;
+    }
+    case kEdgeSquare:
+        return computeSquare(s, d);
+    case kEdgeBezier:
+    default:
+        return computeBezier(s, d);
+    }
+}
+
 void FlowEdgeItem::updatePath()
 {
     m_dragging = false;
@@ -53,17 +83,7 @@ void FlowEdgeItem::updatePath()
 
     const QPointF s = m_start->pinScenePos();
     const QPointF d = m_end ? m_end->pinScenePos() : s;
-    QPainterPath path;
-    if (m_edgeType == kEdgeBezier)
-    {
-        path = computeBezier(s, d);
-    }
-    else
-    {
-        path.moveTo(s);
-        path.lineTo(d);
-    }
-    setPath(path);
+    setPath(pathForType(s, d));
 }
 
 void FlowEdgeItem::setDragEndPoint(const QPointF &scenePos)
@@ -75,8 +95,7 @@ void FlowEdgeItem::setDragEndPoint(const QPointF &scenePos)
         return;
     }
     const QPointF s = m_start->pinScenePos();
-    QPainterPath path = computeBezier(s, scenePos);
-    setPath(path);
+    setPath(pathForType(s, scenePos));
 }
 
 bool FlowEdgeItem::validateConnection(FlowSocketItem *a, FlowSocketItem *b)

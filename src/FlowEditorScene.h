@@ -10,6 +10,7 @@ class FlowNodeItem;
 class FlowSocketItem;
 class FlowEdgeItem;
 class NodeTypeRegistry;
+class FlowEditorSceneHistory;
 
 class FlowEditorScene : public QGraphicsScene
 {
@@ -17,6 +18,7 @@ class FlowEditorScene : public QGraphicsScene
 
 public:
     explicit FlowEditorScene(QObject *parent = nullptr);
+    ~FlowEditorScene() override;
 
     void setRegistry(NodeTypeRegistry *registry)
     {
@@ -25,6 +27,25 @@ public:
     NodeTypeRegistry *registry() const
     {
         return m_registry;
+    }
+
+    FlowEditorSceneHistory *history() const
+    {
+        return m_history;
+    }
+
+    int loadSilentDepth() const
+    {
+        return m_loadSilent;
+    }
+
+    void beginBulkEdit()
+    {
+        ++m_loadSilent;
+    }
+    void endBulkEdit()
+    {
+        --m_loadSilent;
     }
 
     qint64 takeNextId();
@@ -44,10 +65,31 @@ public:
 
     void clearDocument();
 
+    QJsonObject snapshotJson() const;
+
+    bool importGraphJson(const QJsonObject &o);
+
+    void removeAllGraphItems();
+
+    void restoreFromSnapshotJson(const QJsonObject &sceneJson, const QJsonObject &selectionJson);
+
+    FlowNodeItem *findNodeById(qint64 nodeId) const;
+    FlowEdgeItem *findEdgeById(qint64 edgeId) const;
+
+    void deselectAll();
+
+    QJsonObject serializeClipboardSelection(bool deleteAfter);
+
+    bool pasteFromClipboardJson(const QJsonObject &data, const QPointF &mouseScenePos);
+
+    void cutEdgesAlongPolyline(const QVector<QPointF> &points);
+
     bool saveSceneFile(const QString &path) const;
     bool loadSceneFile(const QString &path);
 
     bool saveGraphFile(const QString &path) const;
+
+    bool saveGraphToTempFile(QString *outPath) const;
 
     QString currentFilePath() const
     {
@@ -66,13 +108,14 @@ public:
 
 signals:
     void modificationChanged(bool modified);
+    void selectionChangedInScene();
 
 private:
-    QJsonObject serializeScene() const;
     bool deserializeScene(const QJsonObject &o);
     void resumeIdCounterFromScene();
 
     NodeTypeRegistry *m_registry = nullptr;
+    FlowEditorSceneHistory *m_history = nullptr;
     qint64 m_sceneId = 1;
     qint64 m_nextEntityId = 1;
     QHash<QString, int> m_typeOccurrence;

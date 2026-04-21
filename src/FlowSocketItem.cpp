@@ -25,14 +25,14 @@ FlowSocketItem::FlowSocketItem(FlowNodeItem *node, int index, bool isInput, cons
     Q_UNUSED(countOnSide);
     setAcceptHoverEvents(true);
     setFlag(QGraphicsItem::ItemIsSelectable, false);
-    setPen(QPen(QColor(QStringLiteral("#FFFFFF")), 0.5));
-    setBrush(QBrush(QColor(QStringLiteral("#1294ba"))));
+    setPen(QPen(QColor(QStringLiteral("#cfe6ff")), 0.75));
+    setBrush(QBrush(QColor(QStringLiteral("#1f6f8b"))));
     setToolTip(m_dataType);
 
     auto *label = new QGraphicsTextItem(this);
     QFont f(QStringLiteral("Roboto"), 10);
     label->setFont(f);
-    label->setDefaultTextColor(QColor(QStringLiteral("#a2abba")));
+    label->setDefaultTextColor(QColor(QStringLiteral("#c7d0e0")));
     label->setPlainText(m_name);
     if (m_isInput)
     {

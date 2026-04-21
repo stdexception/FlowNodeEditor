@@ -12,6 +12,10 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 add_executable(FlowNodeEditor
     src/main.cpp
+    src/FlowEditorSceneHistory.cpp
+    src/FlowEditorSceneHistory.h
+    src/NodeSettingsDock.cpp
+    src/NodeSettingsDock.h
     src/NodeTypeRegistry.cpp
     src/NodeTypeRegistry.h
     src/FlowSocketItem.cpp

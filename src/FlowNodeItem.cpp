@@ -94,7 +94,7 @@ FlowNodeItem::FlowNodeItem(FlowEditorScene *editorScene, const NodeTypeInfo &inf
             ? presetInputSocketIds.at(ix)
             : m_editorScene->takeNextId();
         auto *s = new FlowSocketItem(this, ix, true, p.name, p.dataType, info.inputs.size(), sid);
-        s->multiEdges = false;
+        s->multiEdges = p.multiEdges;
         m_inputs.append(s);
         ++ix;
     }
@@ -105,7 +105,7 @@ FlowNodeItem::FlowNodeItem(FlowEditorScene *editorScene, const NodeTypeInfo &inf
             ? presetOutputSocketIds.at(ix)
             : m_editorScene->takeNextId();
         auto *s = new FlowSocketItem(this, ix, false, p.name, p.dataType, info.outputs.size(), sid);
-        s->multiEdges = true;
+        s->multiEdges = p.multiEdges;
         m_outputs.append(s);
         ++ix;
     }
@@ -127,18 +127,25 @@ void FlowNodeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opti
     painter->setRenderHint(QPainter::Antialiasing);
 
     QRectF body(0, 0, m_width, m_height);
-    const QColor bg(QStringLiteral("#151a24"));
-    const QColor bgHover(QStringLiteral("#151a24"));
+    const QColor bg(QStringLiteral("#171d2a"));
+    const QColor bgHover(QStringLiteral("#1b2230"));
     painter->setBrush(hover ? bgHover : bg);
-    painter->setPen(selected ? QPen(QColor(QStringLiteral("#28daed")), 1.5) : QPen(QColor(QStringLiteral("#00000000")), 0));
+    if (selected)
+    {
+        painter->setPen(QPen(QColor(QStringLiteral("#28daed")), 1.5));
+    }
+    else
+    {
+        painter->setPen(QPen(QColor(QStringLiteral("#28324a")), 1.0));
+    }
     painter->drawRoundedRect(body, 6.0, 6.0);
 
     QRectF titleRect(0, 0, m_width, kTitleHeight + kTitleVPadding);
-    painter->setBrush(QColor(QStringLiteral("#1b202c")));
+    painter->setBrush(QColor(QStringLiteral("#222a3b")));
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(titleRect.adjusted(0, 0, 0, 6), 6.0, 6.0);
 
-    painter->setPen(QColor(QStringLiteral("#ffffff")));
+    painter->setPen(QColor(QStringLiteral("#e6ebf2")));
     QFont f(QStringLiteral("Roboto"), 10);
     painter->setFont(f);
     painter->drawText(QRectF(4, 4, m_width - 8, kTitleHeight), Qt::AlignLeft | Qt::AlignVCenter, m_title);

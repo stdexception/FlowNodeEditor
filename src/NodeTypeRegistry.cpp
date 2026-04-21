@@ -67,6 +67,10 @@ void NodeTypeRegistry::loadFromDirectory(const QString &rootPath)
                 PortInfo pi;
                 pi.name = p.value(QStringLiteral("port_name")).toString();
                 pi.dataType = p.value(QStringLiteral("data_type")).toString();
+                if (p.contains(QStringLiteral("multi_edges")))
+                {
+                    pi.multiEdges = p.value(QStringLiteral("multi_edges")).toBool();
+                }
                 info.inputs.append(pi);
             }
 
@@ -77,6 +81,10 @@ void NodeTypeRegistry::loadFromDirectory(const QString &rootPath)
                 PortInfo pi;
                 pi.name = p.value(QStringLiteral("port_name")).toString();
                 pi.dataType = p.value(QStringLiteral("data_type")).toString();
+                if (p.contains(QStringLiteral("multi_edges")))
+                {
+                    pi.multiEdges = p.value(QStringLiteral("multi_edges")).toBool();
+                }
                 info.outputs.append(pi);
             }
 

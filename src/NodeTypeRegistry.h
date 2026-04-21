@@ -10,6 +10,8 @@ struct PortInfo
 {
     QString name;
     QString dataType;
+    /** When false, new connections replace existing edges on this socket (single-connection port). */
+    bool multiEdges = true;
 };
 
 struct NodeTypeInfo
