@@ -55,6 +55,7 @@ void GraphicsNode::layoutTitle()
 void GraphicsNode::addInputSocket()
 {
     auto* s = new GraphicsSocket(this, GraphicsSocket::SocketType::Input, inputs_.size(), this);
+    s->setMultiEdges(true);
     inputs_.append(s);
     s->updateSocketPosition();
 }
@@ -62,6 +63,7 @@ void GraphicsNode::addInputSocket()
 void GraphicsNode::addOutputSocket()
 {
     auto* s = new GraphicsSocket(this, GraphicsSocket::SocketType::Output, outputs_.size(), this);
+    s->setMultiEdges(true);
     outputs_.append(s);
     s->updateSocketPosition();
 }

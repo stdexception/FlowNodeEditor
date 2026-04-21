@@ -13,10 +13,13 @@ EditorScene::EditorScene()
 
 EditorScene::~EditorScene()
 {
-    for (auto* e : edges_)
+    // Deleting an edge mutates edges_; copy before iterating.
+    const std::vector<GraphicsEdge*> edgesCopy = edges_;
+    for (GraphicsEdge* e : edgesCopy)
         delete e;
     edges_.clear();
-    for (auto* n : nodes_)
+    const std::vector<GraphicsNode*> nodesCopy = nodes_;
+    for (GraphicsNode* n : nodesCopy)
         delete n;
     nodes_.clear();
 }

@@ -18,9 +18,12 @@ add_executable(FlowNodeEditor
     src/GraphicsNode.cpp
     src/GraphicsSocket.cpp
     src/GraphicsEdge.cpp
+    src/EdgeDragging.cpp
+    src/EdgeValidators.cpp
     include/MainWindow.hpp
     include/GraphicsScene.hpp
     include/GraphicsView.hpp
+    include/EdgeDragging.hpp
 )
 
 target_include_directories(FlowNodeEditor PRIVATE

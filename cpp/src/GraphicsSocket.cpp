@@ -1,5 +1,6 @@
 #include "GraphicsSocket.hpp"
 #include "GraphicsNode.hpp"
+#include "GraphicsEdge.hpp"
 
 #include <QBrush>
 #include <QPen>
@@ -26,4 +27,26 @@ void GraphicsSocket::updateSocketPosition()
         setPos(br.left(), y);
     else
         setPos(br.right(), y);
+}
+
+void GraphicsSocket::addEdge(GraphicsEdge* e)
+{
+    if (!e || edges_.contains(e))
+        return;
+    edges_.push_back(e);
+}
+
+void GraphicsSocket::removeEdge(GraphicsEdge* e)
+{
+    edges_.removeAll(e);
+}
+
+void GraphicsSocket::removeAllEdges()
+{
+    const QVector<GraphicsEdge*> copy = edges_;
+    for (GraphicsEdge* e : copy) {
+        e->removeFromDocument();
+        delete e;
+    }
+    edges_.clear();
 }

@@ -1,0 +1,17 @@
+C++ port status (incremental translation from Python / PyQt)
+
+DONE (this branch)
+- GraphicsScene: grid background (node_graphics_scene)
+- EditorScene: nodes/edges lists, lifecycle (node_scene subset)
+- GraphicsNode / GraphicsSocket / GraphicsEdge: minimal graph items
+- EdgeDragging + EdgeValidators: socket drag new edge, threshold, same rules as
+  node_edge_dragging + node_edge_validators (two IO types, same node, dataType)
+- GraphicsView: zoom, edge-drag mode, RMB cancels drag (subset of node_graphics_view)
+
+NOT YET PORTED (Python still authoritative)
+- SceneHistory, SceneClipboard, full serialization .nes / .graph.json
+- Edge rerouting, cut line, snapping, node-on-edge drop
+- MDI window, execution subsystem, node type JSON, JsonEditor
+- Full Socket position constants, multi-side layouts
+
+Build: see CMakeLists.txt (Qt 6 Widgets, C++17).

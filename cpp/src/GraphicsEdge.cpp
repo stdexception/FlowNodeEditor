@@ -22,16 +22,91 @@ GraphicsEdge::GraphicsEdge(EditorScene* scene, GraphicsSocket* start, GraphicsSo
         scene_->graphicsScene()->addItem(this);
         scene_->addEdge(this);
     }
+    attachSockets();
     updatePath();
+}
+
+GraphicsEdge::~GraphicsEdge()
+{
+    detachSockets();
+    if (QGraphicsScene* gs = scene())
+        gs->removeItem(this);
+    if (scene_) {
+        scene_->removeEdge(this);
+        scene_ = nullptr;
+    }
+    start_ = nullptr;
+    end_ = nullptr;
+    freeEndScene_.reset();
+}
+
+void GraphicsEdge::setEndSocket(GraphicsSocket* end)
+{
+    if (end_ == end)
+        return;
+    if (end_)
+        end_->removeEdge(this);
+    end_ = end;
+    clearFreeEnd();
+    if (end_)
+        end_->addEdge(this);
+    updatePath();
+}
+
+void GraphicsEdge::setFreeEndScene(const QPointF& scenePos)
+{
+    freeEndScene_ = scenePos;
+    updatePath();
+}
+
+void GraphicsEdge::clearFreeEnd()
+{
+    freeEndScene_.reset();
+    updatePath();
+}
+
+void GraphicsEdge::attachSockets()
+{
+    if (start_)
+        start_->addEdge(this);
+    if (end_)
+        end_->addEdge(this);
+}
+
+void GraphicsEdge::detachSockets()
+{
+    if (start_)
+        start_->removeEdge(this);
+    if (end_)
+        end_->removeEdge(this);
+}
+
+void GraphicsEdge::removeFromDocument()
+{
+    detachSockets();
+    if (QGraphicsScene* gs = scene())
+        gs->removeItem(this);
+    if (scene_)
+        scene_->removeEdge(this);
+    scene_ = nullptr;
+    start_ = nullptr;
+    end_ = nullptr;
+    freeEndScene_.reset();
 }
 
 void GraphicsEdge::updatePath()
 {
-    if (!start_ || !end_)
+    if (!start_)
         return;
 
     const QPointF p1 = start_->scenePos();
-    const QPointF p2 = end_->scenePos();
+    QPointF p2;
+    if (end_)
+        p2 = end_->scenePos();
+    else if (freeEndScene_)
+        p2 = *freeEndScene_;
+    else
+        p2 = p1;
 
     QPainterPath path(p1);
     const qreal dx = std::max(40.0, std::abs(p2.x() - p1.x()) * 0.5);
