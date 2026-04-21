@@ -4,6 +4,7 @@
 #include "GraphicsEdge.hpp"
 #include "GraphicsSocket.hpp"
 #include "GraphicsView.hpp"
+#include "SceneHistory.hpp"
 #include "nodeeditor/EdgeValidators.hpp"
 
 EdgeDragging::EdgeDragging(GraphicsView* view)
@@ -89,6 +90,8 @@ bool EdgeDragging::edgeDragEnd(GraphicsSocket* releaseSocket)
         outSock->removeAllEdges();
 
     new GraphicsEdge(doc, outSock, inSock);
+    if (doc->history())
+        doc->history()->storeHistory(QStringLiteral("Created edge"), true);
     return true;
 }
 

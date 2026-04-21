@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include <QJsonObject>
 #include <QPainterPath>
 #include <QPen>
 
@@ -14,6 +15,7 @@ GraphicsEdge::GraphicsEdge(EditorScene* scene, GraphicsSocket* start, GraphicsSo
     , start_(start)
     , end_(end)
 {
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
     setZValue(-1);
     QPen p(QColor(QStringLiteral("#8b9bb4")), 2);
     p.setCosmetic(true);
@@ -38,6 +40,16 @@ GraphicsEdge::~GraphicsEdge()
     start_ = nullptr;
     end_ = nullptr;
     freeEndScene_.reset();
+}
+
+QJsonObject GraphicsEdge::toJson() const
+{
+    QJsonObject o;
+    o.insert(QStringLiteral("id"), static_cast<qint64>(objectId_));
+    o.insert(QStringLiteral("edge_type"), edgeType_);
+    o.insert(QStringLiteral("start"), start_ ? static_cast<qint64>(start_->objectId()) : QJsonValue());
+    o.insert(QStringLiteral("end"), end_ ? static_cast<qint64>(end_->objectId()) : QJsonValue());
+    return o;
 }
 
 void GraphicsEdge::setEndSocket(GraphicsSocket* end)

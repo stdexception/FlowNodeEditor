@@ -1,10 +1,21 @@
 #include "GraphicsView.hpp"
 #include "GraphicsScene.hpp"
 #include "GraphicsSocket.hpp"
+#include "GraphicsNode.hpp"
+#include "GraphicsEdge.hpp"
+#include "EditorScene.hpp"
+#include "SceneClipboard.hpp"
+#include "SceneHistory.hpp"
 
+#include <QApplication>
+#include <QClipboard>
+#include <QContextMenuEvent>
+#include <QJsonDocument>
+#include <QList>
+#include <QMenu>
 #include <QMouseEvent>
-#include <QWheelEvent>
 #include <QPainter>
+#include <QWheelEvent>
 
 GraphicsView::GraphicsView(GraphicsScene* grScene, QWidget* parent)
     : QGraphicsView(grScene, parent)
@@ -16,6 +27,7 @@ GraphicsView::GraphicsView(GraphicsScene* grScene, QWidget* parent)
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setDragMode(QGraphicsView::RubberBandDrag);
     setBackgroundBrush(QColor(QStringLiteral("#202b3c")));
+    setContextMenuPolicy(Qt::DefaultContextMenu);
 }
 
 void GraphicsView::resetMode()
@@ -23,6 +35,28 @@ void GraphicsView::resetMode()
     mode_ = ViewInteractionMode::NoOp;
     if (dragMode() != RubberBandDrag)
         setDragMode(RubberBandDrag);
+}
+
+void GraphicsView::deleteSelectedItems()
+{
+    if (!scene() || !editorScene_)
+        return;
+
+    QList<QGraphicsItem*> sel = scene()->selectedItems();
+    QList<GraphicsEdge*> edges;
+    QList<GraphicsNode*> nodes;
+    for (QGraphicsItem* it : sel) {
+        if (auto* e = qgraphicsitem_cast<GraphicsEdge*>(it))
+            edges.append(e);
+        else if (auto* n = qgraphicsitem_cast<GraphicsNode*>(it))
+            nodes.append(n);
+    }
+    for (GraphicsEdge* e : edges) {
+        e->removeFromDocument();
+        delete e;
+    }
+    for (GraphicsNode* n : nodes)
+        n->removeFromDocument();
 }
 
 void GraphicsView::wheelEvent(QWheelEvent* event)
@@ -61,6 +95,23 @@ bool GraphicsView::distanceClickReleaseExceedsThreshold(const QMouseEvent* event
     return distSq > th * th;
 }
 
+void GraphicsView::contextMenuEvent(QContextMenuEvent* event)
+{
+    if (!editorScene_ || !editorScene_->clipboard()) {
+        QGraphicsView::contextMenuEvent(event);
+        return;
+    }
+    QMenu menu(this);
+    QAction* paste = menu.addAction(tr("Paste"));
+    paste->setShortcut(QKeySequence::Paste);
+    QAction* chosen = menu.exec(event->globalPos());
+    if (chosen == paste) {
+        const QJsonObject data = QJsonDocument::fromJson(QApplication::clipboard()->text().toUtf8()).object();
+        if (!data.isEmpty())
+            editorScene_->clipboard()->deserializeFromClipboard(data);
+    }
+}
+
 void GraphicsView::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
@@ -82,6 +133,7 @@ void GraphicsView::mousePressEvent(QMouseEvent* event)
 void GraphicsView::mouseMoveEvent(QMouseEvent* event)
 {
     const QPointF sp = mapToScene(event->pos());
+    lastSceneMousePosition_ = sp;
     emit scenePosChanged(static_cast<int>(sp.x()), static_cast<int>(sp.y()));
 
     if (mode_ == ViewInteractionMode::EdgeDrag && dragging_.isDragging())
@@ -93,7 +145,6 @@ void GraphicsView::mouseMoveEvent(QMouseEvent* event)
 void GraphicsView::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton && mode_ == ViewInteractionMode::EdgeDrag) {
-        // Match Python: only finalize edge after pointer moved past EDGE_DRAG_START_THRESHOLD.
         if (distanceClickReleaseExceedsThreshold(event)) {
             QGraphicsItem* item = itemAtClick(event);
             auto* sock = qgraphicsitem_cast<GraphicsSocket*>(item);

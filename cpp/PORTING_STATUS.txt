@@ -2,16 +2,20 @@ C++ port status (incremental translation from Python / PyQt)
 
 DONE (this branch)
 - GraphicsScene: grid background (node_graphics_scene)
-- EditorScene: nodes/edges lists, lifecycle (node_scene subset)
-- GraphicsNode / GraphicsSocket / GraphicsEdge: minimal graph items
-- EdgeDragging + EdgeValidators: socket drag new edge, threshold, same rules as
-  node_edge_dragging + node_edge_validators (two IO types, same node, dataType)
-- GraphicsView: zoom, edge-drag mode, RMB cancels drag (subset of node_graphics_view)
+- EditorScene: nodes/edges lists, lifecycle, JSON serialize/deserialize matching Python
+  Scene shape (id, scene_width, scene_height, nodes, edges)
+- GraphicsNode / GraphicsSocket / GraphicsEdge: stable object ids, socket fields aligned
+  with Python Socket.serialize (index, multi_edges, position, socket_type)
+- EdgeDragging + EdgeValidators (node_edge_dragging, node_edge_validators)
+- GraphicsView: zoom, edge-drag, RMB cancel, last scene mouse pos, delete selection
+- SceneHistory: undo/redo stack with scene JSON snapshots + selection restore
+  (node_scene_history subset)
+- SceneClipboard: copy/cut/paste JSON via system clipboard (node_scene_clipboard subset)
+- MainWindow: File New/Open/Save (.nes), Save Graph JSON, Edit Undo/Redo/Copy/Cut/Paste/Delete
 
 NOT YET PORTED (Python still authoritative)
-- SceneHistory, SceneClipboard, full serialization .nes / .graph.json
 - Edge rerouting, cut line, snapping, node-on-edge drop
-- MDI window, execution subsystem, node type JSON, JsonEditor
-- Full Socket position constants, multi-side layouts
+- MDI window, execution subsystem, node type JSON, JsonEditor, ConcreteExecutionNode
+- Full socket placement constants / graphics node chrome from pyqt-node-editor
 
-Build: see CMakeLists.txt (Qt 6 Widgets, C++17).
+Build: cpp/CMakeLists.txt — Qt 6 Widgets, C++17.

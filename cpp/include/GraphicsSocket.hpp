@@ -1,12 +1,19 @@
 #pragma once
 
 #include <QGraphicsEllipseItem>
+#include <QHash>
+#include <QJsonObject>
 #include <QString>
 #include <QVector>
 
-class GraphicsEdge;
+#include "ObjectId.hpp"
 
+class GraphicsEdge;
 class GraphicsNode;
+
+/** Python LEFT_CENTER for serialized compatibility */
+constexpr int kSocketPositionLeftCenter = 2;
+constexpr int kSocketPositionRightCenter = 5;
 
 class GraphicsSocket : public QGraphicsEllipseItem {
 public:
@@ -14,14 +21,18 @@ public:
 
     GraphicsSocket(GraphicsNode* node, SocketType type, int index, QGraphicsItem* parent = nullptr);
 
+    [[nodiscard]] quint64 objectId() const { return objectId_; }
+    void assignObjectId(quint64 id) { objectId_ = id; }
+
     [[nodiscard]] GraphicsNode* node() const { return node_; }
     [[nodiscard]] SocketType socketKind() const { return type_; }
     [[nodiscard]] int index() const { return index_; }
+    [[nodiscard]] int position() const { return position_; }
+    void setPosition(int p) { position_ = p; }
 
     [[nodiscard]] bool isInput() const { return type_ == SocketType::Input; }
     [[nodiscard]] bool isOutput() const { return type_ == SocketType::Output; }
 
-    /** Data type string for validation (Python socket_type); default "any". */
     [[nodiscard]] QString dataType() const { return dataType_; }
     void setDataType(const QString& t) { dataType_ = t; }
 
@@ -37,10 +48,16 @@ public:
 
     void removeAllEdges();
 
+    [[nodiscard]] QJsonObject toJson() const;
+    static GraphicsSocket* fromJson(GraphicsNode* node, SocketType type, const QJsonObject& o, bool restoreId,
+                                     QHash<quint64, GraphicsSocket*>& socketMap);
+
 private:
+    quint64 objectId_{allocateObjectId()};
     GraphicsNode* node_{nullptr};
     SocketType type_{SocketType::Input};
     int index_{0};
+    int position_{kSocketPositionLeftCenter};
     QString dataType_{QStringLiteral("any")};
     bool multiEdges_{false};
     QVector<GraphicsEdge*> edges_;

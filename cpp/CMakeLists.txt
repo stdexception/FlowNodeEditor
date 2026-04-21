@@ -20,6 +20,8 @@ add_executable(FlowNodeEditor
     src/GraphicsEdge.cpp
     src/EdgeDragging.cpp
     src/EdgeValidators.cpp
+    src/SceneHistory.cpp
+    src/SceneClipboard.cpp
     include/MainWindow.hpp
     include/GraphicsScene.hpp
     include/GraphicsView.hpp
